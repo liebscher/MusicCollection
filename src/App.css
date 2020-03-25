@@ -1,38 +1,197 @@
-.App {
-  text-align: center;
+/* Search bar */
+
+.header {
+  margin-top: 3em;
+  margin-bottom: 0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.search {
+  background: transparent;
+  border-radius: 0;
+  border: 1px solid #c7c7c7;
+  box-shadow: none;
+  padding: 0 1em;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+input.search:hover {
+  border: 1px solid #a8a8a8;
+  box-shadow: none;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+input.search:focus {
+  border: 1px solid #919191;
+  box-shadow: none;
 }
 
-.App-link {
-  color: #61dafb;
+.search-bar .field {
+  margin-bottom: 0;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.search-results .media:last-child {
+  border-bottom: 1px solid #DDD;
+}
+
+.search-results .media-left {
+  height: 48px;
+  width: 48px;
+}
+
+.search-results .loader {
+  margin: auto;
+}
+
+.search-results .media-content {
+  line-height: 48px;
+  vertical-align: middle;
+}
+
+.result {
+  padding: 6px;
+}
+
+.result:hover {
+  background: #EEE;
+  cursor: pointer;
+}
+
+.viewing {
+  margin-right: 1em;
+}
+
+/* comparisons */
+
+.skip-btn {
+  width: 20%;
+  margin-top: 3em;
+}
+
+.grow-art-small {
+  transition: all .2s ease-in-out;
+}
+.grow-art-small:hover {
+  box-shadow: 0 0 10px #BBB;
+  z-index: 1000;
+  position: relative;
+  transform: scale(3);
+}
+
+.grow-art-large {
+  transition: all .2s ease-in-out;
+}
+.grow-art-large:hover {
+  box-shadow: 0 0 10px #DDD;
+  z-index: 1000;
+  position: relative;
+  transform: scale(2);
+}
+
+/* Albums */
+
+.album-title a {
+  font-size: 0.7em;
+  color: #1DB954;
+}
+.album-title a:hover {
+  color: #3ed674;
+}
+
+.album-subtitle {
+  margin-bottom: 0.5em;
+}
+
+.album-score {
+  float: right;
+}
+
+.album {
+  margin-left: 1em;
+  border: 1px solid #EEE;
+  padding: 1em;
+}
+
+.genres {
+  margin-bottom: 0.5em;
+}
+
+.genres span {
+  margin-right: 10px;
+}
+
+.tracks span {
+  margin-bottom: 0.1em;
+}
+
+.tracks p {
+  color: #666;
+  margin-left: 1em;
+  margin-bottom: 0.5em;
+}
+
+.tracks input {
+  margin-left: 0.2em;
+  margin-bottom: 0.5em;
+}
+
+.track-playing {
+  color: #1DB954;
+}
+.track-playing:hover {
+  cursor: pointer;
+  color: #3ed674;
+}
+
+.track-paused {
+  color: #CCC;
+}
+
+.track-paused:hover {
+  cursor: pointer;
+  color: #AAA;
+}
+
+.fa-pen {
+  color: #CCC;
+}
+.fa-pen:hover {
+  color: #AAA;
+  cursor: pointer;
+}
+
+.save {
+  margin-top: 1em;
+}
+
+.listened {
+  margin-top: 1em;
+  margin-right: 1em;
+}
+
+.edit {
+  margin-top: 1em;
+}
+
+.button {
+  border-radius: 0;
+}
+
+.textarea {
+  border-radius: 0;
+}
+
+.popbar {
+  margin-bottom: 1em;
+  height: 24px;
+}
+
+.pop {
+  width: 90px;
+  float: left;
+}
+.progress {
+  width: 20%;
+  float: left;
+}
+
+.tag {
+  cursor: pointer;
 }
