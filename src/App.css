@@ -103,6 +103,30 @@ input.search:focus {
   float: right;
 }
 
+.award-gold {
+  color: #FFD700;
+}
+
+.award-silver {
+  color: #C0C0C0;
+}
+
+.award-bronze {
+  color: #CD7F32;
+}
+
+.thumb-last {
+  color: #CC2908;
+}
+
+.thumb-2last {
+  color: #9C1E05;
+}
+
+.thumb-3last {
+  color: #691302;
+}
+
 .album {
   margin-left: 1em;
   border: 1px solid #EEE;

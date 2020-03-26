@@ -130,7 +130,7 @@ const CATEGORIES = [
   'structure', 'voice'
 ]
 
-const Options = ({popularity, categories, inc, exc, del, hidden}) => (
+const Options = ({album, popularity, categories, inc, exc, del, hidden}) => (
   <div className={hidden ? "is-hidden" : ""}>
     <div className="popbar">
       <div className="pop">Popularity:</div>
@@ -138,8 +138,9 @@ const Options = ({popularity, categories, inc, exc, del, hidden}) => (
     </div>
     <div className="tags">
     {CATEGORIES.map(x => {
+      let score = album.get('score_'+x) ? album.get('score_'+x).toFixed(2) : 'NA'
       let a = categories.includes(x)
-      return <span className={`tag is-capitalized ${a ? "is-success" : ""}`} onClick={() => a ? exc(x) : inc(x)} key={x}>{x}</span>
+      return <span className={`tag is-capitalized ${a ? "is-success" : ""}`} onClick={() => a ? exc(x) : inc(x)} key={x}>{x} ({score})</span>
     })}
     </div>
     <p className="button is-outlined is-danger" onClick={() => del()}>
@@ -160,6 +161,7 @@ const Genres = ({genres}) => {
 
 const Album = (props) => {
   const sid = props.sid
+  const albumN = props.albums.get('allSIDs').count()
   const album = props.albums.getIn(['bySID', sid])
 
   const v = album.get('view')
@@ -177,7 +179,18 @@ const Album = (props) => {
 
   const art = album.get('cached_art') ? 'images/' + album.get('sid') + '.png' : album.get('art')
 
-  const all = CATEGORIES.map(x => album.get('score_'+x) ? album.get('score_'+x).toFixed(2) + ", " : '0, ')
+  const scores = CATEGORIES.map(x => album.get('score_'+x) ? album.get('score_'+x).toFixed(2) : 'NA')
+
+  const dispAward = (color) => (<i className={`fas fa-award ${color}`}></i>)
+  const dispThumb = (color) => (<i class={`fas fa-thumbs-down ${color}`}></i>)
+  console.log(albumN)
+  const rank = album.get('avg_score_rank')
+  let icon = null
+  if (rank <= 3) {
+    icon = dispAward(["award-gold", "award-silver", "award-bronze"][rank-1])
+  } else if (albumN - rank <= 2) {
+    icon = dispThumb(["thumb-last", "thumb-2last", "thumb-3last"][albumN - rank])
+  }
 
   return (
     <article className="media" sid={sid}>
@@ -188,13 +201,12 @@ const Album = (props) => {
       </figure>
       <div className="media-content album">
         <div className="album-score">
-          <h4 className="subtitle is-5">{avg_score} (#{album.get('avg_score_rank')})</h4>
+          <h4 className="subtitle is-5">{icon} {avg_score} (#{rank})</h4>
         </div>
         <div>
           <h3 className="title is-3 album-title">{album.get('album')} <a href={album.get('url')} target="_blank"><i className="fab fa-spotify"></i></a></h3>
           <h5 className="subtitle is-5 album-subtitle">{album.get('artist')} — {album.get('year')} ({duration(album.get('runtime'))})</h5>
           <Genres genres={genres} />
-          {all}
         </div>
         <div className="tabs">
           <ul>
@@ -222,6 +234,7 @@ const Album = (props) => {
           history={text_history}
           hidden={v === "h" ? false : true}/>
         <Options
+          album={album}
           popularity={album.get('popularity')}
           categories={album.get('catg_inc') === undefined ? [] : album.get('catg_inc')}
           inc={(cat) => props.incCatg(sid, cat)}
