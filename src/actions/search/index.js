@@ -1,4 +1,5 @@
 import * as consts from '../../constants/search'
+import { raiseError } from '../collection'
 
 export const setSearchResults = (results) => ({
   type: consts.SET_RESULTS,
@@ -19,7 +20,7 @@ export const clearQuery = () => ({
 })
 
 export function postSearch(query) {
-  return dispatch => {
+  return async dispatch => {
 
     if (!query || !query.length) {
       dispatch(clearQuery())
@@ -27,37 +28,45 @@ export function postSearch(query) {
       return
     }
 
-    fetch('/search', {
+    const response = await fetch('/search', {
       method: 'POST',
-      mode: 'same-origin',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({query: query})
     })
-    .then(resp => resp.json())
-    .then(resp => {
 
-      let formatted = resp.albums.items.map(v => ({
+    if (!response.ok) {
+      console.log(response)
+      dispatch(raiseError('Failed to post search.'))
+      return
+    }
+
+    let json = []
+
+    try {
+      json = await response.json()
+
+      json = json.albums.items.map(v => ({
         sid: v["id"],
         artist: v["artists"][0]["name"],
         album: v["name"],
         year: v["release_date"].substring(0,4),
         art: v["images"][2]["url"]
       }))
-
-      dispatch(setSearchResults(formatted))
-    })
-    .catch(error => {
-      dispatch(setSearchResults([
+    } catch(error) {
+      dispatch(raiseError('Failed to format search: "' + error + '"'))
+      json = [
         {
           sid: "123",
-          artist: "test",
-          album: "test",
+          artist: "Test",
+          album: "Test",
           year: "2000",
           art: "https://i.scdn.co/image/ab67616d0000485182fd952c052899397f8c9917"
         }
-      ]))
-    })
+      ]
+    }
+
+    dispatch(setSearchResults(json))
   }
 }

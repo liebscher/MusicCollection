@@ -72,6 +72,7 @@ export function postComparison(sid1, sid2, category) {
     if (!response.ok) {
       console.log(response)
       dispatch(raiseError('Failed to post comparison'))
+      return
     }
 
     dispatch(postComparisonSuccess())
@@ -106,6 +107,7 @@ function getScores(category) {
     if (!response.ok) {
       console.log(response)
       dispatch(raiseError('Failed to fetch score for "' + category + '"'))
+      return
     }
 
     let json = {}
@@ -126,17 +128,17 @@ export function loadScores() {
   return async dispatch => {
 
     let d = await dispatch(getScores(consts.CATEGORIES[0]))
-    d = await dispatch(getScores(consts.CATEGORIES[1]))
-    d = await dispatch(getScores(consts.CATEGORIES[2]))
-    d = await dispatch(getScores(consts.CATEGORIES[3]))
-    d = await dispatch(getScores(consts.CATEGORIES[4]))
-    d = await dispatch(getScores(consts.CATEGORIES[5]))
-    d = await dispatch(getScores(consts.CATEGORIES[6]))
-    d = await dispatch(getScores(consts.CATEGORIES[7]))
-    d = await dispatch(getScores(consts.CATEGORIES[8]))
-    d = await dispatch(getScores(consts.CATEGORIES[9]))
-    d = await dispatch(getScores(consts.CATEGORIES[10]))
-    d = await dispatch(getScores(consts.CATEGORIES[11]))
+    d = await d(getScores(consts.CATEGORIES[1]))
+    d = await d(getScores(consts.CATEGORIES[2]))
+    d = await d(getScores(consts.CATEGORIES[3]))
+    d = await d(getScores(consts.CATEGORIES[4]))
+    d = await d(getScores(consts.CATEGORIES[5]))
+    d = await d(getScores(consts.CATEGORIES[6]))
+    d = await d(getScores(consts.CATEGORIES[7]))
+    d = await d(getScores(consts.CATEGORIES[8]))
+    d = await d(getScores(consts.CATEGORIES[9]))
+    d = await d(getScores(consts.CATEGORIES[10]))
+    d = await d(getScores(consts.CATEGORIES[11]))
 
     dispatch(collateScoresSuccess())
     dispatch(rankScoresSuccess())
@@ -172,6 +174,7 @@ function fetchAlbums() {
     if (!response.ok) {
       console.log(response)
       dispatch(raiseError('Failed to fetch collection'))
+      return
     }
 
     let json = []
@@ -280,18 +283,18 @@ export const cacheArt = (sid) => ({
 })
 
 export function postCacheArt(sid) {
-  return dispatch => {
+  return async dispatch => {
 
     const uri = '/collection/' + sid + '/cache'
 
-    fetch(uri, { method: 'POST' })
-    .then(resp => resp.json())
-    .then(json => {
-      dispatch(cacheArt(sid))
-    })
-    .catch(error => {
+    const response = await fetch(uri, { method: 'POST' })
+
+    if (!response.ok) {
+      console.log(response)
       dispatch(raiseError('Error caching album art for Album SID ' + sid + '.'))
-    })
+    } else {
+      dispatch(cacheArt(sid))
+    }
   }
 }
 
@@ -308,32 +311,34 @@ export const deleteAlbumCatgSuccess = (sid, cat) => ({
 })
 
 export function postAlbumCatg(sid, cat) {
-  return dispatch => {
+  return async dispatch => {
 
     const uri = '/collection/' + sid + '/catg/' + cat
 
-    fetch(uri, { method: 'POST' })
-    .then(resp => {
-      dispatch(postAlbumCatgSuccess(sid, cat))
-    })
-    .catch(error => {
+    const response = await fetch(uri, { method: 'POST' })
+
+    if (!response.ok) {
+      console.log(response)
       dispatch(raiseError('Error adding comparison category to album to collection.'))
-    })
+    } else {
+      dispatch(postAlbumCatgSuccess(sid, cat))
+    }
   }
 }
 
 export function deleteAlbumCatg(sid, cat) {
-  return dispatch => {
+  return async dispatch => {
 
     const uri = '/collection/' + sid + '/catg/' + cat
 
-    fetch(uri, { method: 'DELETE' })
-    .then(resp => {
-      dispatch(deleteAlbumCatgSuccess(sid, cat))
-    })
-    .catch(error => {
+    const response = await fetch(uri, { method: 'DELETE' })
+
+    if (!response.ok) {
+      console.log(response)
       dispatch(raiseError('Error deleting comparison category from album to collection.'))
-    })
+    } else {
+      dispatch(deleteAlbumCatgSuccess(sid, cat))
+    }
   }
 }
 
@@ -344,13 +349,21 @@ export const postAlbumSuccess = (sid, album) => ({
 })
 
 export function postAlbum(sid) {
-  return dispatch => {
+  return async dispatch => {
 
     const uri = '/collection/' + sid
 
-    fetch(uri, { method: 'POST' })
-    .then(resp => resp.json())
-    .then(json => {
+    const response = await fetch(uri, { method: 'POST' })
+
+    if (!response.ok) {
+      console.log(response)
+      dispatch(raiseError('Failed to post new album'))
+      return
+    }
+
+    try {
+      const json = await response.json()
+
       json.view = "r"
       json.runtime = json.tracks.reduce((a,b) => a + b[2], 0)
       dispatch(clearResults()) // clears results
@@ -360,10 +373,9 @@ export function postAlbum(sid) {
       dispatch(postAlbumSuccess(sid, json))
       dispatch(resetFilters())
       dispatch(sortSIDs())
-    })
-    .catch(error => {
+    } catch(error) {
       dispatch(raiseError('Error adding album to collection.'))
-    })
+    }
   }
 }
 
@@ -373,19 +385,21 @@ export const deleteAlbumSuccess = (sid) => ({
 })
 
 export function deleteAlbum(sid) {
-  return dispatch => {
+  return async dispatch => {
 
     const uri = '/collection/' + sid
 
-    fetch(uri, { method: 'DELETE' })
-    .then(resp => {
+    const response = await fetch(uri, { method: 'DELETE' })
+
+    if (!response.ok) {
+      console.log(response)
+      dispatch(raiseError('Error deleting album from collection.'))
+    } else {
       dispatch(deleteAlbumSuccess(sid))
       dispatch(resetFilters())
       dispatch(sortSIDs())
-    })
-    .catch(resp => {
-      dispatch(raiseError('Error deleting album from collection.'))
-    })
+    }
+
   }
 }
 
@@ -398,11 +412,11 @@ export const postReviewSuccess = (sid, review) => ({
 })
 
 export function postReview(sid, review) {
-  return dispatch => {
+  return async dispatch => {
 
     const uri = '/collection/' + sid
 
-    fetch(uri, {
+    const response = await fetch(uri, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -411,12 +425,13 @@ export function postReview(sid, review) {
         review: review
       })
     })
-    .then(resp => {
-      dispatch(postReviewSuccess(sid, review))
-    })
-    .catch(resp => {
+
+    if (!response.ok) {
+      console.log(response)
       dispatch(raiseError('Error adding review to album.'))
-    })
+    } else {
+      dispatch(postReviewSuccess(sid, review))
+    }
   }
 }
 
@@ -428,11 +443,11 @@ export const postTrackReviewSuccess = (sid, tid, review) => ({
 })
 
 export function postTrackReview(sid, tid, review) {
-  return dispatch => {
+  return async dispatch => {
 
     const uri = '/collection/' + sid + '/track/' + tid
 
-    fetch(uri, {
+    const response = await fetch(uri, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -441,12 +456,13 @@ export function postTrackReview(sid, tid, review) {
         review: review
       })
     })
-    .then(resp => {
-      dispatch(postTrackReviewSuccess(sid, tid, review))
-    })
-    .catch(resp => {
+
+    if (!response.ok) {
+      console.log(response)
       dispatch(raiseError('Error adding track review to album.'))
-    })
+    } else {
+      dispatch(postTrackReviewSuccess(sid, tid, review))
+    }
   }
 }
 
@@ -457,18 +473,24 @@ export const postListenSuccess = (sid, time) => ({
 })
 
 export function postListen(sid) {
-  return dispatch => {
+  return async dispatch => {
 
     const uri = '/collection/' + sid + '/listen'
 
-    fetch(uri, { method: 'POST' })
-    .then(resp => resp.json())
-    .then(json => {
+    const response = await fetch(uri, { method: 'POST' })
+
+    if (!response.ok) {
+      console.log(response)
+      dispatch(raiseError('Failed to post listen'))
+      return
+    }
+
+    try {
+      const json = await response.json()
       dispatch(postListenSuccess(sid, json['timestamp']))
-    })
-    .catch(resp => {
+    } catch(error) {
       dispatch(raiseError('Error adding listen to album.'))
-    })
+    }
   }
 }
 
