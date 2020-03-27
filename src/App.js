@@ -11,7 +11,8 @@ import Stats from './components/Stats'
 import {  clearError,
           setSort,
           fetchComparison,
-          loadScores } from './actions/collection'
+          loadScores,
+          resetScoresCount } from './actions/collection'
 
 const Container = ({content}) => (
   <div className="section">
@@ -90,7 +91,11 @@ class App extends Component {
 
     if (this.shouldFetchComparison(albums, comparison)) {
       this.props.dispatch(fetchComparison())
-      this.props.dispatch(loadScores())
+
+      if (comparison.get('iter') === comparison.get('maxIters')) {
+        this.props.dispatch(loadScores())
+        this.props.dispatch(resetScoresCount())
+      }
     }
 
     return (

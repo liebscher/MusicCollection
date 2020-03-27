@@ -22,7 +22,8 @@ const initialState = Map({
     question: '',
     sid1: '',
     sid2: '',
-    iters: 5
+    maxIters: 10,
+    iter: 10,
   })
 })
 
@@ -185,6 +186,7 @@ const collection = (state = initialState, action) => {
         .setIn(['comparison', 'isFetching'], false)
         .setIn(['comparison', 'isInvalid'], false)
 
+
     case 'POST_COMPARISON_SUCCESS':
       return state
         .setIn(['comparison', 'sid1'], '')
@@ -194,6 +196,10 @@ const collection = (state = initialState, action) => {
         .setIn(['comparison', 'isLoaded'], false)
         .setIn(['comparison', 'isFetching'], false)
         .setIn(['comparison', 'isInvalid'], false)
+        .setIn(['comparison', 'iter'], state.getIn(['comparison', 'iter'])+1)
+
+    case 'RESET_SCORES_COUNT':
+      return state.setIn(['comparison', 'iter'], 0)
 
     case 'GET_SCORES_SUCCESS':
       const scores = action.scores

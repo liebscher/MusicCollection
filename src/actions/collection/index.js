@@ -149,6 +149,10 @@ export function loadScores() {
   }
 }
 
+export const resetScoresCount = () => ({
+  type: 'RESET_SCORES_COUNT'
+})
+
 //////
 
 export const receiveCollection = (collection) => ({
