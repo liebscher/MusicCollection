@@ -85,6 +85,13 @@ input.search:focus {
   transform: scale(2);
 }
 
+/* Filter */
+
+.sort-default {
+  cursor: pointer;
+  color: hsl(217, 71%, 53%);
+}
+
 /* Albums */
 
 .album-title a {

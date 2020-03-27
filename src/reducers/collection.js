@@ -11,7 +11,8 @@ const initialState = Map({
     filteredSIDs: List()
   }),
   error: List(),
-  sort: 'SORT_ADDN',
+  sort: consts.SORTS.ADD,
+  sort_asc: true,
   filter: '',
   comparison: Map({
     isLoaded: false,
@@ -61,7 +62,7 @@ function shuffle(array) {
 
 const sortCollection = (a, b, method) => {
   switch (method) {
-    case 'SORT_LISTENO':
+    case consts.SORTS.LISTEN:
       if (!a.get('history').isEmpty() && !b.get('history').isEmpty()) {
         return a.get('history').last() - b.get('history').last()
 
@@ -73,28 +74,10 @@ const sortCollection = (a, b, method) => {
       }
       return a.get('add_date') - b.get('add_date')
 
-    case 'SORT_LISTENN':
-      if (!a.get('history').isEmpty() && !b.get('history').isEmpty()) {
-        return b.get('history').last() - a.get('history').last()
-
-      } else if (!a.get('history').isEmpty() && b.get('history').isEmpty()) {
-        return b.get('add_date') - a.get('history').last()
-
-      } else if (!b.get('history').isEmpty() && a.get('history').isEmpty()) {
-        return b.get('history').last() - a.get('add_date')
-      }
-      return b.get('add_date') - a.get('add_date')
-
-    case 'SORT_RUNTIMES':
+    case consts.SORTS.RUNTIME:
       return a.get('runtime') - b.get('runtime')
 
-    case 'SORT_RUNTIMEL':
-      return b.get('runtime') - a.get('runtime')
-
-    case 'SORT_ADDO':
-      return a.get('add_date') - b.get('add_date')
-
-    case 'SORT_REC':
+    case consts.SORTS.RECOMMENDED:
       if (a.get('history').count() === 1) {
         if (b.get('history').isEmpty()) {
           return -1
@@ -103,6 +86,9 @@ const sortCollection = (a, b, method) => {
 
       }
       return 1
+
+    case consts.SORTS.RANK:
+      return a.get('avg_score_rank') - b.get('avg_score_rank')
 
     default:
       return b.get('add_date') - a.get('add_date')
@@ -142,14 +128,19 @@ const collection = (state = initialState, action) => {
     case consts.SET_SORT:
       return state.set('sort', action.sort)
 
+    case consts.SET_SORT_ASC:
+      return state.set('sort_asc', !state.get('sort_asc'))
+
     case consts.SORT_SIDS:
+      const desc = state.get('sort_asc')
       return state.setIn(['albums', 'filteredSIDs'], state.getIn(['albums', 'filteredSIDs']).sort(
-        (a, b) => sortCollection(
-          state.getIn(['albums', 'bySID', a]),
-          state.getIn(['albums', 'bySID', b]),
-          state.get('sort')
+          (a, b) => sortCollection(
+            state.getIn(['albums', 'bySID', desc ? a : b]),
+            state.getIn(['albums', 'bySID', desc ? b : a]),
+            state.get('sort')
+          )
         )
-      ))
+      )
 
     case 'REQUEST_COMPARISON':
       let cix = Math.floor(Math.random() * questions.length)

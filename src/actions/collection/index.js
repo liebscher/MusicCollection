@@ -15,6 +15,10 @@ export const setSort = (sort) => ({
   sort
 })
 
+export const setSortAsc = () => ({
+  type: consts.SET_SORT_ASC,
+})
+
 export const sortSIDs = () => ({
   type: consts.SORT_SIDS,
 })

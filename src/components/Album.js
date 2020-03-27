@@ -183,7 +183,6 @@ const Album = (props) => {
 
   const dispAward = (color) => (<i className={`fas fa-award ${color}`}></i>)
   const dispThumb = (color) => (<i class={`fas fa-thumbs-down ${color}`}></i>)
-  console.log(albumN)
   const rank = album.get('avg_score_rank')
   let icon = null
   if (rank <= 3) {
