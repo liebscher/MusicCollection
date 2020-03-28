@@ -47,7 +47,7 @@ const sortCollection = (a, b, method) => {
       return a.get('runtime') - b.get('runtime')
 
     case consts.SORTS.RECOMMENDED:
-      if (a.get('history').count() === 1) {
+      if (a.get('history').count() === consts.MIN_LISTENS - 1) {
         if (b.get('history').isEmpty()) {
           return -1
         }

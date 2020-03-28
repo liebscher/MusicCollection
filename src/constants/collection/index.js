@@ -42,7 +42,7 @@ export const POST_TRACK_REVIEW_SUCCESS = 'POST_TRACK_REVIEW_SUCCESS'
 export const POST_LISTEN_SUCCESS = 'POST_LISTEN_SUCCESS'
 export const SET_VIEW = 'SET_VIEW'
 
-export const MIN_LISTENS = 2
+export const MIN_LISTENS = 3
 export const CATEGORIES = [
   'art', 'critic', 'cohesive', 'depth', 'dynamics', 'flow', 'friend', 'hold', 'longevity', 'lyrics',
   'structure', 'voice'
