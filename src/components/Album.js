@@ -1,6 +1,10 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faHeadphones, faEdit, faTimes, faAward, faThumbsDown } from '@fortawesome/free-solid-svg-icons'
+import { faFolderOpen } from '@fortawesome/free-regular-svg-icons'
+
 import { postReview,
   postTrackReview,
   postListen,
@@ -21,11 +25,11 @@ const Review = ({listen, edit, review, hidden}) => (
     </p>
     <p className="listened button is-link is-outlined" onClick={() => listen()}>
       <span>Add Listen</span>
-      <span className="icon"><i className="fas fa-headphones"></i></span>
+      <FontAwesomeIcon icon={faHeadphones} pull="right"/>
     </p>
     <p className="edit button is-link is-outlined" onClick={() => edit()}>
       <span>Edit Review</span>
-      <span className="icon"><i className="fas fa-edit"></i></span>
+      <FontAwesomeIcon icon={faEdit} pull="right"/>
     </p>
   </div>
 )
@@ -94,7 +98,7 @@ const Track = ({data, edit}) => {
   return (
     <li>
       <span>
-        {data.get(0)}. {data.get(1)} ({duration(data.get(2))}) <span onClick={toggleEdit} className="icon"><i className="fas fa-edit"></i></span>
+        {data.get(0)}. {data.get(1)} ({duration(data.get(2))}) <FontAwesomeIcon icon={faEdit} onClick={toggleEdit} />
       </span>
       {
         editing ?
@@ -145,7 +149,7 @@ const Options = ({album, popularity, categories, inc, exc, del, hidden}) => (
     </div>
     <p className="button is-outlined is-danger" onClick={() => del()}>
       <span>Delete Album</span>
-      <span className="icon"><i className="fas fa-times"></i></span>
+      <FontAwesomeIcon icon={faTimes} pull="right"/>
     </p>
   </div>
 )
@@ -153,8 +157,7 @@ const Options = ({album, popularity, categories, inc, exc, del, hidden}) => (
 const Genres = ({genres}) => {
   return (
     <p className="is-capitalized genres">
-      <span><i className="far fa-folder-open"></i></span>
-      <span>{genres.join(', ')}</span>
+      <FontAwesomeIcon icon={faFolderOpen} /> <span>{genres.join(', ')}</span>
     </p>
   )
 }
@@ -181,8 +184,8 @@ const Album = (props) => {
 
   const scores = CATEGORIES.map(x => album.get('score_'+x) ? album.get('score_'+x).toFixed(2) : 'NA')
 
-  const dispAward = (color) => (<i className={`fas fa-award ${color}`}></i>)
-  const dispThumb = (color) => (<i class={`fas fa-thumbs-down ${color}`}></i>)
+  const dispAward = (color) => (<FontAwesomeIcon icon={faAward} className={color} />)
+  const dispThumb = (color) => (<FontAwesomeIcon icon={faThumbsDown} className={color} />)
   const rank = album.get('avg_score_rank')
   let icon = null
   if (rank <= 3) {
