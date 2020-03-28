@@ -75,7 +75,7 @@ class App extends Component {
   }
 
   shouldFetchComparison(albums, comparison) {
-    if (albums.get('allSIDs').isEmpty()) {
+    if (!albums.get('isLoaded')) {
       return false
     } else if (!comparison.get('isLoaded')) {
       return true
@@ -86,15 +86,20 @@ class App extends Component {
     }
   }
 
+  shouldFetchScores(comparison) {
+    return comparison.get('iter') === comparison.get('maxIters')
+  }
+
   render() {
     const { albums, error, comparison } = this.props;
 
     if (this.shouldFetchComparison(albums, comparison)) {
-      this.props.dispatch(fetchComparison())
-
-      if (comparison.get('iter') === comparison.get('maxIters')) {
+      if (this.shouldFetchScores(comparison)) {
         this.props.dispatch(loadScores())
         this.props.dispatch(resetScoresCount())
+      }
+      if (albums.get('isScored')) {
+        this.props.dispatch(fetchComparison(albums.get('bySID'), comparison.get('iter')))
       }
     }
 

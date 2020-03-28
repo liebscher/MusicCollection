@@ -5,6 +5,8 @@ const initialState = Map({
   albums: Map({
     isFetching: false,
     isInvalid: false,
+    isLoaded: false,
+    isScored: false,
     lastUpdated: 0,
     bySID: Map(),
     allSIDs: List(),
@@ -22,44 +24,10 @@ const initialState = Map({
     question: '',
     sid1: '',
     sid2: '',
-    maxIters: 10,
-    iter: 10,
+    maxIters: 6,
+    iter: 6,
   })
 })
-
-const questions = [
-  "Which album art contributes to the album more?",
-  "Which album would you buy for a music critic?",
-  "Which has songs that build an album greater than its parts?",
-  "Which album makes you think more?",
-  "Which album better balances soft and loud?",
-  "More songs on which album didn't flow well with the rest?",
-  "Which album would you buy for your best friend?",
-  "Which are you more likely to get distracted during while listening?",
-  "Which would you choose if forced to listen to one once every day?",
-  "Taking only the lyrics from these albums, which would make a better story in book form?",
-  "Which album has more filler tracks?",
-  "Which album has better vocals?",
-]
-
-const MIN_LISTENS = 2
-
-function shuffle(array) {
-  // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
-  var currentIndex = array.length, temporaryValue, randomIndex;
-
-  while (0 !== currentIndex) {
-
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
-
-  return array;
-}
 
 const sortCollection = (a, b, method) => {
   switch (method) {
@@ -144,38 +112,11 @@ const collection = (state = initialState, action) => {
       )
 
     case consts.REQUEST_COMPARISON:
-      let cix = Math.floor(Math.random() * questions.length)
-      let c = consts.CATEGORIES[cix]
-      let q = questions[cix]
-
-      // resp = OrderedMap(resp)
-      //
-      // resp = resp.filter((v,k) => sids.includes(k)).sort()
-      //
-      // let z = []
-      //
-      // let k = resp.keySeq()
-      //
-      // for (let i = 1; i < resp.size; i++) {
-      //   z.push([[k.get(i-1), k.get(i)], resp.get(k.get(i)) - resp.get(k.get(i-1))])
-      // }
-      //
-      // let pair = z.sort((a,b) => a[1] - b[1])[0]
-      //
-      //     .setIn(['comparison', 'sid1'], pair[0][0])
-      //     .setIn(['comparison', 'sid2'], pair[0][1])
-
-      let sids = state.getIn(['albums', 'bySID']).filter(k =>
-        k.get('history').size >= MIN_LISTENS && k.get('catg_inc') && k.get('catg_inc').includes(c)
-      ).keySeq().toJS()
-
-      let [album1SID, album2SID] = shuffle(sids).slice(0,2)
-
       return state
-        .setIn(['comparison', 'sid1'], album1SID)
-        .setIn(['comparison', 'sid2'], album2SID)
-        .setIn(['comparison', 'question'], q)
-        .setIn(['comparison', 'category'], c)
+        .setIn(['comparison', 'sid1'], action.sid1)
+        .setIn(['comparison', 'sid2'], action.sid2)
+        .setIn(['comparison', 'question'], action.question)
+        .setIn(['comparison', 'category'], action.category)
         .setIn(['comparison', 'isLoaded'], false)
         .setIn(['comparison', 'isFetching'], true)
         .setIn(['comparison', 'isInvalid'], false)
@@ -236,6 +177,7 @@ const collection = (state = initialState, action) => {
           state.getIn(['albums', 'bySID'])
         )
       )
+      .setIn(['albums', 'isScored'], true)
 
     case consts.RANK_SCORES_SUCCESS:
       const sorted = state.getIn(['albums', 'bySID']).map((v, k) => v.get('avg_score')).sort().reverse().keySeq()
@@ -274,6 +216,7 @@ const collection = (state = initialState, action) => {
     case consts.RECEIVE_COLLECTION:
       return state
         .set('albums', normalizeAlbums(action.collection))
+        .setIn(['albums', 'isLoaded'], true)
         .setIn(['albums', 'isInvalid'], false)
         .setIn(['albums', 'isFetching'], false)
 

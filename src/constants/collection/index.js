@@ -42,7 +42,22 @@ export const POST_TRACK_REVIEW_SUCCESS = 'POST_TRACK_REVIEW_SUCCESS'
 export const POST_LISTEN_SUCCESS = 'POST_LISTEN_SUCCESS'
 export const SET_VIEW = 'SET_VIEW'
 
+export const MIN_LISTENS = 2
 export const CATEGORIES = [
   'art', 'critic', 'cohesive', 'depth', 'dynamics', 'flow', 'friend', 'hold', 'longevity', 'lyrics',
   'structure', 'voice'
+]
+export const QUESTIONS = [
+  "Which album art contributes to the album more?",
+  "Which album would you buy for a music critic?",
+  "Which has songs that build an album greater than its parts?",
+  "Which album makes you think more?",
+  "Which album better balances soft and loud?",
+  "More songs on which album didn't flow well with the rest?",
+  "Which album would you buy for your best friend?",
+  "Which are you more likely to get distracted during while listening?",
+  "Which would you choose if forced to listen to one once every day?",
+  "Taking only the lyrics from these albums, which would make a better story in book form?",
+  "Which album has more filler tracks?",
+  "Which album has better vocals?",
 ]

@@ -1,5 +1,6 @@
 import * as consts from '../../constants/collection'
 import { clearQuery, clearResults } from '../search'
+import { OrderedMap } from 'immutable'
 
 export const clearError = () => ({
   type: consts.CLEAR_ERROR
@@ -44,13 +45,67 @@ const receiveComparison = () => ({
   type: consts.RECEIVE_COMPARISON,
 })
 
-const requestComparison = () => ({
+const requestComparison = (sid1, sid2, question, category) => ({
   type: consts.REQUEST_COMPARISON,
+  sid1,
+  sid2,
+  question,
+  category
 })
 
-export function fetchComparison() {
+function shuffle(array) {
+  // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  while (0 !== currentIndex) {
+
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+
+export function fetchComparison(albums, iter) {
   return dispatch => {
-    dispatch(requestComparison())
+
+    let cix = Math.floor(Math.random() * consts.CATEGORIES.length)
+    let category = consts.CATEGORIES[cix]
+    let question = consts.QUESTIONS[cix]
+
+    albums = albums.filter(v =>
+      v.get('history').size >= consts.MIN_LISTENS && v.has('catg_inc') && v.get('catg_inc').includes(category)
+    )
+
+    const scoreKey = 'score_' + category
+    let k = albums.keySeq()
+    let [sid1, sid2] = shuffle(k.toJS()).slice(0,2)
+
+    if (iter % 3 !== 0) {
+      albums = OrderedMap(albums)
+      albums = albums.sort((a,b) => a.get(scoreKey) - b.get(scoreKey))
+
+      let k = albums.keySeq()
+
+      console.log(albums.map(v => v.get(scoreKey)).toJS())
+
+      let z = []
+
+      for (let i = 1; i < albums.count(); i++) {
+        console.log(i, k.get(i), albums.getIn([k.get(i), scoreKey]), '-', i-1, k.get(i-1), albums.getIn([k.get(i-1), scoreKey]))
+        z.push([[k.get(i-1), k.get(i)], albums.getIn([k.get(i), scoreKey]) - albums.getIn([k.get(i-1), scoreKey])])
+      }
+
+      [sid1, sid2] = z.sort((a,b) => a[1] - b[1])[0][0]
+    }
+
+    console.log(iter, sid1, sid2, category, albums.getIn([sid2, scoreKey]) - albums.getIn([sid1, scoreKey]))
+
+    dispatch(requestComparison(sid1, sid2, question, category))
 
     return dispatch(receiveComparison())
   }
@@ -244,6 +299,23 @@ function fetchAlbums() {
           "url": "https://open.spotify.com/album/1BHwJqnHhuIryphXMZ0PMQ",
           "art_cached": true,
           "catg_inc": consts.CATEGORIES
+        },
+        {
+          "_id": {"$oid": "5e4b1ae48b90ec3d6a742cc4"},
+          "sid": "0bCAjiUamIFqKJsekOYuRw",
+          "add_date": 1581980388.362533,
+          "album": "Wish You Were Here",
+          "artist": "Pink Floyd",
+          "year": "1975",
+          "genres": ["album rock", "art rock", "classic rock", "progressive rock", "psychedelic rock", "rock", "symphonic rock"],
+          "popularity": 74,
+          "art": "https://i.scdn.co/image/ab67616d0000b273d8fa5ac6259dba33127b398a",
+          "tracks": [[1, "Shine On You Crazy Diamond (Pts. 1-5)", 811077, "https://p.scdn.co/mp3-preview/7c03d0cf10ad5784dab1f41840727bbf4492c7f4?cid=1e397fe8f48841b29574a0412050c29f", "Saxophone brings in a huge organic wave of emotion"], [2, "Welcome to the Machine", 451680, "https://p.scdn.co/mp3-preview/81b353c6cc187c13ae81b9cc79df63742fabac89?cid=1e397fe8f48841b29574a0412050c29f", "Wild synths mostly. Juxtaposition with Shine On Pt1-5."], [3, "Have a Cigar", 307733, "https://p.scdn.co/mp3-preview/5128e08debcd7d73176ad5bdac640c48ae8e6f79?cid=1e397fe8f48841b29574a0412050c29f", "Starts with some synths, then moves into the wicked guitar solo"], [4, "Wish You Were Here", 334743, "https://p.scdn.co/mp3-preview/7ce0d4e5f0ffcf8fe1a312c9c2f9331c8d2bf994?cid=1e397fe8f48841b29574a0412050c29f", "Excellent song-writing, performance, and instrumentals"], [5, "Shine On You Crazy Diamond (Pts. 6-9)", 747325, "https://p.scdn.co/mp3-preview/0149309a02c147a561d5557707c1ab8494cc48d6?cid=1e397fe8f48841b29574a0412050c29f", "Monumental, dramatic, space-y, well-paced"]],
+          "review": "A tribute album to Syd Barrett and a critique of the music industry.",
+          "history": [1582225364.605084, 1584397348.102282],
+          "url": "https://open.spotify.com/album/0bCAjiUamIFqKJsekOYuRw",
+          "catg_inc": ["art", "critic", "cohesive", "depth", "dynamics", "flow", "friend", "hold", "longevity", "lyrics", "structure", "voice"],
+          "cached_art": true
         }
       ]
     }
