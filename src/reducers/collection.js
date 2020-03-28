@@ -120,10 +120,10 @@ function normalizeAlbums(data) {
 
 const collection = (state = initialState, action) => {
   switch (action.type) {
-    case 'CLEAR_ERROR':
+    case consts.CLEAR_ERROR:
       return state.set('error', state.get('error').shift())
 
-    case 'RAISE_ERROR':
+    case consts.RAISE_ERROR:
       return state.set('error', state.get('error').push(action.error))
 
     case consts.SET_SORT:
@@ -143,7 +143,7 @@ const collection = (state = initialState, action) => {
         )
       )
 
-    case 'REQUEST_COMPARISON':
+    case consts.REQUEST_COMPARISON:
       let cix = Math.floor(Math.random() * questions.length)
       let c = consts.CATEGORIES[cix]
       let q = questions[cix]
@@ -180,14 +180,14 @@ const collection = (state = initialState, action) => {
         .setIn(['comparison', 'isFetching'], true)
         .setIn(['comparison', 'isInvalid'], false)
 
-    case 'RECEIVE_COMPARISON':
+    case consts.RECEIVE_COMPARISON:
       return state
         .setIn(['comparison', 'isLoaded'], true)
         .setIn(['comparison', 'isFetching'], false)
         .setIn(['comparison', 'isInvalid'], false)
 
 
-    case 'POST_COMPARISON_SUCCESS':
+    case consts.POST_COMPARISON_SUCCESS:
       return state
         .setIn(['comparison', 'sid1'], '')
         .setIn(['comparison', 'sid2'], '')
@@ -198,10 +198,10 @@ const collection = (state = initialState, action) => {
         .setIn(['comparison', 'isInvalid'], false)
         .setIn(['comparison', 'iter'], state.getIn(['comparison', 'iter'])+1)
 
-    case 'RESET_SCORES_COUNT':
+    case consts.RESET_SCORES_COUNT:
       return state.setIn(['comparison', 'iter'], 0)
 
-    case 'GET_SCORES_SUCCESS':
+    case consts.GET_SCORES_SUCCESS:
       const scores = action.scores
       const key = "score_" + action.category
 
@@ -220,7 +220,7 @@ const collection = (state = initialState, action) => {
         )
       )
 
-    case 'COLLATE_SCORES_SUCCESS':
+    case consts.COLLATE_SCORES_SUCCESS:
       return state
         .setIn(['albums', 'bySID'],
           state.getIn(['albums', 'bySID'])
@@ -229,7 +229,6 @@ const collection = (state = initialState, action) => {
               consts.CATEGORIES.reduce((S, W) => {
                 let y = 'score_' + W
                 let e = V.get(y) ? V.get(y) : 0
-                console.log(K, y, e)
                 return S + e
               }, 0) / consts.CATEGORIES.length
             )
@@ -238,7 +237,7 @@ const collection = (state = initialState, action) => {
         )
       )
 
-    case 'RANK_SCORES_SUCCESS':
+    case consts.RANK_SCORES_SUCCESS:
       const sorted = state.getIn(['albums', 'bySID']).map((v, k) => v.get('avg_score')).sort().reverse().keySeq()
       return state
         .setIn(['albums', 'bySID'],
@@ -252,7 +251,7 @@ const collection = (state = initialState, action) => {
         )
       )
 
-    case 'CACHE_ART':
+    case consts.CACHE_ART:
       return state.setIn(['bySID', action.sid, 'cached_art'], true)
 
     case consts.SET_FILTER_QUERY_SUCCESS:
@@ -263,16 +262,16 @@ const collection = (state = initialState, action) => {
         filterAlbums(state.get('albums'), state.get('filter'))
       )
 
-    case 'INVALIDATE_COLLECTION':
+    case consts.INVALIDATE_COLLECTION:
       return state
         .setIn(['albums', 'isInvalid'], true)
 
-    case 'REQUEST_COLLECTION':
+    case consts.REQUEST_COLLECTION:
       return state
         .setIn(['albums', 'isInvalid'], false)
         .setIn(['albums', 'isFetching'], true)
 
-    case 'RECEIVE_COLLECTION':
+    case consts.RECEIVE_COLLECTION:
       return state
         .set('albums', normalizeAlbums(action.collection))
         .setIn(['albums', 'isInvalid'], false)

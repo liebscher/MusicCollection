@@ -2,11 +2,11 @@ import * as consts from '../../constants/collection'
 import { clearQuery, clearResults } from '../search'
 
 export const clearError = () => ({
-  type: 'CLEAR_ERROR'
+  type: consts.CLEAR_ERROR
 })
 
 export const raiseError = (error) => ({
-  type: 'RAISE_ERROR',
+  type: consts.RAISE_ERROR,
   error,
 })
 
@@ -41,11 +41,11 @@ export const resetFilters = () => ({
 /////
 
 const receiveComparison = () => ({
-  type: 'RECEIVE_COMPARISON',
+  type: consts.RECEIVE_COMPARISON,
 })
 
 const requestComparison = () => ({
-  type: 'REQUEST_COMPARISON',
+  type: consts.REQUEST_COMPARISON,
 })
 
 export function fetchComparison() {
@@ -57,7 +57,7 @@ export function fetchComparison() {
 }
 
 const postComparisonSuccess = () => ({
-  type: 'POST_COMPARISON_SUCCESS',
+  type: consts.POST_COMPARISON_SUCCESS,
 })
 
 export function postComparison(sid1, sid2, category) {
@@ -88,15 +88,15 @@ export function postComparison(sid1, sid2, category) {
 //////
 
 export const collateScoresSuccess = () => ({
-  type: 'COLLATE_SCORES_SUCCESS',
+  type: consts.COLLATE_SCORES_SUCCESS,
 })
 
 export const rankScoresSuccess = () => ({
-  type: 'RANK_SCORES_SUCCESS',
+  type: consts.RANK_SCORES_SUCCESS,
 })
 
 export const getScoresSuccess = (category, scores) => ({
-  type: 'GET_SCORES_SUCCESS',
+  type: consts.GET_SCORES_SUCCESS,
   category,
   scores,
 })
@@ -150,18 +150,18 @@ export function loadScores() {
 }
 
 export const resetScoresCount = () => ({
-  type: 'RESET_SCORES_COUNT'
+  type: consts.RESET_SCORES_COUNT
 })
 
 //////
 
 export const receiveCollection = (collection) => ({
-  type: 'RECEIVE_COLLECTION',
+  type: consts.RECEIVE_COLLECTION,
   collection,
 })
 
 export const requestCollection = () => ({
-  type: 'REQUEST_COLLECTION',
+  type: consts.REQUEST_COLLECTION,
 })
 
 function resolveAttributes(doc) {
@@ -286,7 +286,7 @@ export function fetchCollectionIfNecessary() {
 //////
 
 export const cacheArt = (sid) => ({
-  type: 'CACHE_ART',
+  type: consts.CACHE_ART,
   sid,
 })
 
