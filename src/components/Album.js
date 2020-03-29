@@ -202,7 +202,7 @@ const Album = (props) => {
         </p>
       </figure>
       <div className="media-content album">
-        <div className="album-score">
+        <div className="is-pulled-right">
           <h4 className="subtitle is-5">{icon} {avg_score} (#{rank})</h4>
         </div>
         <div>

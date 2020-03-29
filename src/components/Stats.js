@@ -10,6 +10,9 @@ class Stats extends Component {
       <div className="columns">
         <div className="column is-8 is-offset-2" id="stats">
           <h3 className="title is-3">Stats</h3>
+          <div className="is-pulled-right">
+            <a href="#header">Back to Top</a>
+          </div>
           <h5 className="subtitle is-5">Music Collection by the Numbers</h5>
           <hr />
           <p>

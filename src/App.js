@@ -23,7 +23,7 @@ const Container = ({content}) => (
 const Header = ({clear, error = null}) => (
   <div className="columns header">
     <div className="column is-8 is-offset-2">
-      <h2 className="title is-2">
+      <h2 className="title is-2" id="header" >
         Music Collection
       </h2>
       <div className={`notification is-warning ${error.isEmpty() ? 'is-hidden' : ''}`}>

@@ -106,10 +106,6 @@ input.search:focus {
   margin-bottom: 0.5em;
 }
 
-.album-score {
-  float: right;
-}
-
 .award-gold {
   color: #FFD700;
 }
