@@ -140,6 +140,35 @@ export function postComparison(sid1, sid2, category) {
   }
 }
 
+const getComparisonsSuccess = (comparisons) => ({
+  type: consts.GET_COMPARISONS_SUCCESS,
+  comparisons
+})
+
+export function getComparisons() {
+  return async dispatch => {
+
+    const uri = '/comparisons'
+
+    const response = await fetch(uri)
+
+    if (!response.ok) {
+      console.log(response)
+      dispatch(raiseError('Failed to get comparisons'))
+      return
+    }
+    let json = [{'sid1': 'a', 'sid2': 'b'}]
+
+    try {
+      json = await response.json()
+    } catch(error) {
+      dispatch(raiseError('Failed to get JSON comparisons'))
+    }
+
+    dispatch(getComparisonsSuccess(json))
+  }
+}
+
 //////
 
 export const collateScoresSuccess = () => ({

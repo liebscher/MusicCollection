@@ -174,6 +174,10 @@ def delete_album(sid):
 
 	return jsonify({'sid': sid})
 
+@app.route('/comparisons', methods=['GET'])
+def get_comparisons():
+	return dumps(list(comparisons.find())), 200, {'Content-Type': 'application/json'}
+
 @app.route('/comparisons/<cat>', methods=['POST'])
 def post_comparison(cat):
 	sid1 = request.get_json()['sid1']

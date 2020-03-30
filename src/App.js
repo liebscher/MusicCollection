@@ -11,6 +11,7 @@ import Stats from './components/Stats'
 import {  clearError,
           setSort,
           fetchComparison,
+          getComparisons,
           loadScores,
           resetScoresCount } from './actions/collection'
 
@@ -100,6 +101,7 @@ class App extends Component {
       }
       if (albums.get('isScored')) {
         this.props.dispatch(fetchComparison(albums.get('bySID'), comparison.get('iter')))
+        this.props.dispatch(getComparisons())
       }
     }
 

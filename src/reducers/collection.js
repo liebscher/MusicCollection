@@ -26,7 +26,8 @@ const initialState = Map({
     sid2: '',
     maxIters: 6,
     iter: 6,
-  })
+  }),
+  comparisons: Map()
 })
 
 const sortCollection = (a, b, method) => {
@@ -138,6 +139,9 @@ const collection = (state = initialState, action) => {
         .setIn(['comparison', 'isFetching'], false)
         .setIn(['comparison', 'isInvalid'], false)
         .setIn(['comparison', 'iter'], state.getIn(['comparison', 'iter'])+1)
+
+    case consts.GET_COMPARISONS_SUCCESS:
+      return state.set('comparisons', fromJS(action.comparisons))
 
     case consts.RESET_SCORES_COUNT:
       return state.setIn(['comparison', 'iter'], 0)
