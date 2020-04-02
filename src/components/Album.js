@@ -182,8 +182,6 @@ const Album = (props) => {
 
   const art = album.get('cached_art') ? 'images/' + album.get('sid') + '.png' : album.get('art')
 
-  const scores = CATEGORIES.map(x => album.get('score_'+x) ? album.get('score_'+x).toFixed(2) : 'NA')
-
   const dispAward = (color) => (<FontAwesomeIcon icon={faAward} className={color} />)
   const dispThumb = (color) => (<FontAwesomeIcon icon={faThumbsDown} className={color} />)
   const rank = album.get('avg_score_rank')
@@ -209,6 +207,9 @@ const Album = (props) => {
           <h3 className="title is-3 album-title">{album.get('album')} <a href={album.get('url')} target="_blank"><i className="fab fa-spotify"></i></a></h3>
           <h5 className="subtitle is-5 album-subtitle">{album.get('artist')} — {album.get('year')} ({duration(album.get('runtime'))})</h5>
           <Genres genres={genres} />
+          <p>
+            Recommended: {album.get('recommended_score').toFixed(2)*100}
+          </p>
         </div>
         <div className="tabs">
           <ul>

@@ -351,6 +351,46 @@ function fetchAlbums() {
 
     json = json.map(x => resolveAttributes(x))
 
+    let addDates = json.map(x => x['add_date'])
+    json = json.map(x => {
+      x['add_date_score'] = 1 - (x['add_date'] - Math.min(...addDates)) / (Math.max(...addDates) - Math.min(...addDates))
+      return x
+    })
+
+    let listenDates = json.map(x => x['history'].length > 0 ? x['history'][x['history'].length-1] : x['add_date'])
+    json = json.map(x => {
+      let l = x['history'].length
+      let v = l > 0 ? x['history'][l - 1] : x['add_date']
+      x['listen_score'] = 1 - (v - Math.min(...listenDates)) / (Math.max(...listenDates) - Math.min(...listenDates))
+
+      switch(l) {
+        case 0:
+          x['history_score'] = 0.85
+          break
+        case 1:
+          x['history_score'] = 0.75
+          break
+        case 2:
+          x['history_score'] = 1.0
+          break
+        default:
+          x['history_score'] =  8.1 * Math.pow(l - 2.8, 1.9) * Math.pow(1.2*l - 2.36, -3.4) // Similar to an F-dist
+          break
+      }
+      return x
+    })
+
+    let runtimes = json.map(x => x['runtime'])
+    json = json.map(x => {
+      x['runtime_score'] = 1 - (x['runtime'] - Math.min(...runtimes)) / (Math.max(...runtimes) - Math.min(...runtimes))
+      return x
+    })
+
+    json = json.map(x => {
+      x['recommended_score'] = (x['add_date_score'] + x['listen_score'] + 0.8 * x['runtime_score'] + x['history_score']) / 4
+      return x
+    })
+
     dispatch(receiveCollection(json))
     dispatch(sortSIDs())
 

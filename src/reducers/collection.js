@@ -48,14 +48,7 @@ const sortCollection = (a, b, method) => {
       return a.get('runtime') - b.get('runtime')
 
     case consts.SORTS.RECOMMENDED:
-      if (a.get('history').count() === consts.MIN_LISTENS - 1) {
-        if (b.get('history').isEmpty()) {
-          return -1
-        }
-        return a.get('history').last() - b.get('history').last()
-
-      }
-      return 1
+      return a.get('recommended_score') - b.get('recommended_score')
 
     case consts.SORTS.RANK:
       return a.get('avg_score_rank') - b.get('avg_score_rank')
