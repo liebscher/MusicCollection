@@ -8,7 +8,7 @@ const Loading = () => (
   <div className="search-results is-fullwidth">
     <div className="media result">
       <figure className="media-left">
-        <p className="loader is-size-3"></p>
+        <div className="loader is-size-3"></div>
       </figure>
     </div>
   </div>

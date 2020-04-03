@@ -27,6 +27,11 @@ input.search:focus {
   margin-bottom: 0;
 }
 
+.search-results .media {
+  margin: 0;
+  padding: 6px;
+}
+
 .search-results .media:last-child {
   border-bottom: 1px solid #DDD;
 }
@@ -34,6 +39,10 @@ input.search:focus {
 .search-results .media-left {
   height: 48px;
   width: 48px;
+}
+
+.search-results .media-left .loader {
+  margin: 8px;
 }
 
 .search-results .loader {
@@ -45,11 +54,7 @@ input.search:focus {
   vertical-align: middle;
 }
 
-.result {
-  padding: 6px;
-}
-
-.result:hover {
+.search-results .media:hover {
   background: #EEE;
   cursor: pointer;
 }
