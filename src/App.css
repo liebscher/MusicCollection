@@ -60,6 +60,19 @@ input.search:focus {
 
 /* comparisons */
 
+.comp-progress {
+  height: 2px;
+  background-color: #DDD;
+  margin-bottom: 1em;
+}
+
+.comp-gap {
+  height: 2px;
+  background-color: #DDD;
+  margin: auto;
+  margin-top: 2em;
+}
+
 .skip-btn {
   width: 20%;
   margin-top: 3em;

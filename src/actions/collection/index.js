@@ -91,12 +91,9 @@ export function fetchComparison(albums, iter) {
 
       let k = albums.keySeq()
 
-      console.log(albums.map(v => v.get(scoreKey)).toJS())
-
       let z = []
 
       for (let i = 1; i < albums.count(); i++) {
-        console.log(i, k.get(i), albums.getIn([k.get(i), scoreKey]), '-', i-1, k.get(i-1), albums.getIn([k.get(i-1), scoreKey]))
         z.push([[k.get(i-1), k.get(i)], albums.getIn([k.get(i), scoreKey]) - albums.getIn([k.get(i-1), scoreKey])])
       }
 

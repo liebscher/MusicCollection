@@ -20,6 +20,10 @@ class Comparison extends Component {
 
     const question = comparison.get('question')
 
+    const gap = Math.abs(album1.get("score_" + cat) - album2.get("score_" + cat))*75
+
+    const progress = iter / comparison.get('maxIters') * 100
+
     return (
       <div className="columns">
         <div className="column is-2 is-offset-2 has-text-centered">
@@ -37,8 +41,10 @@ class Comparison extends Component {
           </p>
         </div>
         <div className="column is-4 has-text-centered">
+          <div className="comp-progress" style={{"width": progress + "%"}}></div>
           <h5 className="is-size-5">{question}</h5>
           <div className="skip-btn button" onClick={() => fetchNewComparison(bySID, iter)}>Skip</div>
+          <div className="comp-gap" style={{"width": gap + "%"}}></div>
         </div>
         <div className="column is-2 has-text-centered">
           <div className="image grow-art-large">
