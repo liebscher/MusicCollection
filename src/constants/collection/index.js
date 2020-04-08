@@ -62,3 +62,11 @@ export const QUESTIONS = [
   "Which album has more filler tracks?",
   "Which album has better vocals?",
 ]
+
+export const RECOMMENDED_WEIGHTS = {
+  add_date_score: 0.75,
+  listen_score: 1.0,
+  runtime_score: 0.75,
+  history_score: 1.0,
+  genre_score: 0.5
+}

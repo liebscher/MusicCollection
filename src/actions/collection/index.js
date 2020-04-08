@@ -349,16 +349,20 @@ function fetchAlbums() {
     json = json.map(x => resolveAttributes(x))
 
     let addDates = json.map(x => x['add_date'])
+    const minAddDates = Math.min(...addDates)
+    const maxAddDates = Math.max(...addDates)
     json = json.map(x => {
-      x['add_date_score'] = 1 - (x['add_date'] - Math.min(...addDates)) / (Math.max(...addDates) - Math.min(...addDates))
+      x['add_date_score'] = 1 - (x['add_date'] - minAddDates) / (maxAddDates - minAddDates)
       return x
     })
 
     let listenDates = json.map(x => x['history'].length > 0 ? x['history'][x['history'].length-1] : x['add_date'])
+    const minListenDates = Math.min(...listenDates)
+    const maxListenDates = Math.max(...listenDates)
     json = json.map(x => {
       let l = x['history'].length
       let v = l > 0 ? x['history'][l - 1] : x['add_date']
-      x['listen_score'] = 1 - (v - Math.min(...listenDates)) / (Math.max(...listenDates) - Math.min(...listenDates))
+      x['listen_score'] = 1 - (v - minListenDates) / (maxListenDates - minListenDates)
 
       switch(l) {
         case 0:
@@ -378,13 +382,39 @@ function fetchAlbums() {
     })
 
     let runtimes = json.map(x => x['runtime'])
+    const minRuntimes = Math.min(...runtimes)
+    const maxRuntimes = Math.max(...runtimes)
     json = json.map(x => {
-      x['runtime_score'] = 1 - (x['runtime'] - Math.min(...runtimes)) / (Math.max(...runtimes) - Math.min(...runtimes))
+      x['runtime_score'] = 1 - (x['runtime'] - minRuntimes) / (maxRuntimes - minRuntimes)
       return x
     })
 
+    let genres = json.map(x => x['genres']).flat()
+    let genreFreq = {};
+    for (var i = 0; i < genres.length; i++) {
+        genreFreq[genres[i]] = 1 + (genreFreq[genres[i]] || 0);
+    }
+
     json = json.map(x => {
-      x['recommended_score'] = (x['add_date_score'] + x['listen_score'] + 0.8 * x['runtime_score'] + x['history_score']) / 4
+      x['genre_freq'] = x['genres'].reduce((a, b) => genre_freq[b] + a, 0)
+      return x
+    })
+
+    let maxGenreFreq = Math.max(...json.map(x => x['genre_freq']))
+    json = json.map(x => {
+      x['genre_score'] = 1 - (x['genre_freq']) / maxGenreFreq
+      return x
+    })
+
+    const maxWeight = Object.values(consts.RECOMMENDED_WEIGHTS).reduce((a, b) => a + b, 0)
+
+    json = json.map(x => {
+      x['recommended_score'] = (
+        consts.RECOMMENDED_WEIGHTS['add_date_score'] * x['add_date_score'] +
+        consts.RECOMMENDED_WEIGHTS['listen_score'] * x['listen_score'] +
+        consts.RECOMMENDED_WEIGHTS['runtime_score'] * x['runtime_score'] +
+        consts.RECOMMENDED_WEIGHTS['history_score'] * x['history_score'] +
+        consts.RECOMMENDED_WEIGHTS['genre_score'] * x['genre_score']) / maxWeight
       return x
     })
 
