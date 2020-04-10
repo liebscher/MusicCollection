@@ -396,7 +396,7 @@ function fetchAlbums() {
     }
 
     json = json.map(x => {
-      x['genre_freq'] = x['genres'].reduce((a, b) => genre_freq[b] + a, 0)
+      x['genre_freq'] = x['genres'].reduce((a, b) => genreFreq[b] + a, 0)
       return x
     })
 

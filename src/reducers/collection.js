@@ -147,7 +147,7 @@ const collection = (state = initialState, action) => {
         .setIn(['albums', 'bySID'],
           state.getIn(['albums', 'bySID'])
           .reduce((R, V, K) => {
-              if (scores[K]) {
+              if (K in scores) {
                 return R.set(K, V.set(key, scores[K]))
               } else {
                 console.log("Use local value: ", key, K)
