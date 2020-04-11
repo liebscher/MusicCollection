@@ -25,18 +25,18 @@ class Comparison extends Component {
     const progress = iter / comparison.get('maxIters') * 100
 
     return (
-      <div className="columns">
+      <div className="columns comparisons">
         <div className="column is-2 is-offset-2 has-text-centered">
-          <div className="image grow-art-large">
+          <div className="image comp-art">
             <img src={album1.get("art")} onClick={() => postComparison(bySID, sid1, sid2, cat)} alt="Album #1"/>
           </div>
           <p className="is-size-5">
             {album1.get("album")}
           </p>
-          <p>
+          <p className="is-size-6">
             {album1.get("artist")}
           </p>
-          <p>
+          <p className="is-size-6">
             {album1.get("year")}
           </p>
         </div>
@@ -47,16 +47,16 @@ class Comparison extends Component {
           <div className="comp-gap" style={{"width": gap + "%"}}></div>
         </div>
         <div className="column is-2 has-text-centered">
-          <div className="image grow-art-large">
+          <div className="image comp-art">
             <img src={album2.get("art")} onClick={() => postComparison(bySID, sid2, sid1, cat)} alt="Album #2"/>
           </div>
           <p className="is-size-5">
             {album2.get("album")}
           </p>
-          <p>
+          <p className="is-size-6">
             {album2.get("artist")}
           </p>
-          <p>
+          <p className="is-size-6">
             {album2.get("year")}
           </p>
         </div>

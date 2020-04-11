@@ -44,7 +44,7 @@ class Filter extends Component {
 
             <div className="level-right">
               <div className="level-item">
-                <input className="input" placeholder="Filter Collection..." type="text"
+                <input className="input filter-input" placeholder="Filter Collection..." type="text"
                   onChange={e => this.beginSearch(e.target.value)}
                   value={this.props.filter} />
               </div>

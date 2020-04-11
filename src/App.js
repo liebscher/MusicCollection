@@ -24,9 +24,9 @@ const Container = ({content}) => (
 const Header = ({clear, error = null}) => (
   <div className="columns header">
     <div className="column is-8 is-offset-2">
-      <h2 className="title is-2" id="header" >
+      <h1 className="title is-1" id="header">
         Music Collection
-      </h2>
+      </h1>
       <div className={`notification is-warning ${error.isEmpty() ? 'is-hidden' : ''}`}>
         <button className="delete" onClick={() => clear()}></button>
         {error.get(0)}
@@ -38,7 +38,7 @@ const Header = ({clear, error = null}) => (
 
 const Albums = ({albums}) => (
   <div className="columns">
-    <div className="column is-8 is-offset-2">
+    <div className="column is-8 is-offset-2 albums">
       {albums.map(sid => (
         <Album key={sid} sid={sid}/>
       ))}
@@ -47,23 +47,18 @@ const Albums = ({albums}) => (
 )
 
 const albumStyle = {margin: "auto", "marginTop": "1em"}
-const imageStyle = {margin: "auto"}
 const questStyle = {margin: "auto", "marginTop": "3em"}
 const LoadingComparison = () => (
   <div className="columns">
     <div className="column is-2 is-offset-2 has-text-centered">
-      <div className="image" style={imageStyle}>
-        <img src="https://bulma.io/images/placeholders/256x256.png" alt="loader"/>
-      </div>
+      <div className="loading-image"></div>
       <p className="is-size-5"><span className="loader" style={albumStyle}></span></p>
     </div>
     <div className="column is-4 has-text-centered">
       <h5 className="is-size-5"><span className="loader is-size-3" style={questStyle}></span></h5>
     </div>
     <div className="column is-2 has-text-centered">
-      <div className="image" style={imageStyle}>
-        <img src="https://bulma.io/images/placeholders/256x256.png" alt="loader"/>
-      </div>
+      <div className="loading-image"></div>
       <p className="is-size-5"><span className="loader" style={albumStyle}></span></p>
     </div>
   </div>

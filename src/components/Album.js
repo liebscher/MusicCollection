@@ -1,9 +1,10 @@
 import React, { useState } from 'react'
 import { connect } from 'react-redux'
+import { CATEGORIES } from '../constants/collection'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faHeadphones, faEdit, faTimes, faAward, faThumbsDown } from '@fortawesome/free-solid-svg-icons'
-import { faFolderOpen } from '@fortawesome/free-regular-svg-icons'
+import { faFolderOpen, faCompass } from '@fortawesome/free-regular-svg-icons'
 
 import { postReview,
   postTrackReview,
@@ -19,7 +20,7 @@ var moment = require('moment');
 
 // an interface to simply view the review from the API
 const Review = ({listen, edit, review, hidden}) => (
-  <div className={hidden ? "is-hidden" : ""}>
+  <div className={`tab-review ${hidden ? "is-hidden" : ""}`}>
     <p>
       {review}
     </p>
@@ -40,7 +41,7 @@ const ReviewEdit = ({post, rev, hidden}) => {
   const [review, setReview] = useState(rev)
 
   return (
-    <div className={hidden ? "is-hidden" : ""}>
+    <div className={`tab-review ${hidden ? "is-hidden" : ""}`}>
       <textarea className="textarea" value={review} onChange={e => setReview(e.target.value)}/>
       <p className="save button is-link is-outlined" onClick={() => post(review)}>
         Save
@@ -96,55 +97,62 @@ const Track = ({data, edit}) => {
   // <span onClick={togglePreview} className={btnColor}><i className="fas fa-volume-up"></i></span>
 
   return (
-    <li>
-      <span>
-        {data.get(0)}. {data.get(1)} ({duration(data.get(2))}) <FontAwesomeIcon icon={faEdit} onClick={toggleEdit} />
-      </span>
+    <div className="track">
+      <div className="track-details">
+        <div>
+          {data.get(0)}.
+        </div>
+        <div>
+          {data.get(1)}
+        </div>
+        <div>
+          {duration(data.get(2))}
+        </div>
+        <div>
+          <FontAwesomeIcon icon={faEdit} onClick={toggleEdit} />
+        </div>
+      </div>
       {
         editing ?
-        ( <input className="input is-small" value={review} onChange={(e) => setReview(e.target.value)}/> ) :
-        ( <p>{review}</p> )
+        ( <div className="track-rev"><input className="input is-small" value={review} onChange={(e) => setReview(e.target.value)}/></div> ) :
+        ( <div className="track-rev">{review}</div> )
       }
-    </li>
+    </div>
   )
 }
 
 // an interface to view tracks and their own reviews from API
 const TrackList = ({edit, tracks, hidden}) => (
-  <div className={`tracks ${hidden ? "is-hidden" : ""}`}>
-    <ul>
-      {tracks.map((v, ix) => ( <Track key={ix} data={v} edit={(review) => edit(ix, review)}/> ))}
-    </ul>
+  <div className={`tab-tracks ${hidden ? "is-hidden" : ""}`}>
+    {tracks.map((v, ix) => ( <Track data={v} edit={(review) => edit(ix, review)}/> ))}
   </div>
 )
 
 // an interface to view the action history
 const History = ({history, hidden}) => (
-  <div className={hidden ? "is-hidden" : ""}>
-    <ul>
-      {history.map((value, index) => {
-        return <li key={index}>{value}</li>
-      })}
-    </ul>
+  <div className={`tab-history ${hidden ? "is-hidden" : ""}`}>
+    {history.map(value => {
+      return (
+        <div className="history-cell">
+          <div>{value[0]}</div>
+          <div>{value[1]}</div>
+        </div>
+      )
+    })}
   </div>
 )
 
-const CATEGORIES = [
-  'art', 'critic', 'cohesive', 'depth', 'dynamics', 'flow', 'friend', 'hold', 'longevity', 'lyrics',
-  'structure', 'voice'
-]
-
 const Options = ({album, popularity, categories, inc, exc, del, hidden}) => (
-  <div className={hidden ? "is-hidden" : ""}>
+  <div className={`tab-options ${hidden ? "is-hidden" : ""}`}>
     <div className="popbar">
       <div className="pop">Popularity:</div>
       <progress className="progress is-medium is-link" value={popularity} max="100">{popularity}%</progress>
     </div>
-    <div className="tags">
+    <div className="album-catgs">
     {CATEGORIES.map(x => {
-      let score = album.get('score_'+x) ? album.get('score_'+x).toFixed(2) : 'NA'
+      let score = album.has('score_'+x) ? album.get('score_'+x).toFixed(2) : 'NA'
       let a = categories.includes(x)
-      return <span className={`tag is-capitalized ${a ? "is-success" : ""}`} onClick={() => a ? exc(x) : inc(x)} key={x}>{x} ({score})</span>
+      return <span className={`catg is-capitalized ${a ? "catg-on" : ""}`} onClick={() => a ? exc(x) : inc(x)} key={x}>{x} ({score})</span>
     })}
     </div>
     <p className="button is-outlined is-danger" onClick={() => del()}>
@@ -157,7 +165,7 @@ const Options = ({album, popularity, categories, inc, exc, del, hidden}) => (
 const Genres = ({genres}) => {
   return (
     <p className="is-capitalized genres">
-      <FontAwesomeIcon icon={faFolderOpen} /> <span>{genres.join(', ')}</span>
+      <FontAwesomeIcon icon={faFolderOpen} color="#5e5e5e"/> <span>{genres.join(', ')}</span>
     </p>
   )
 }
@@ -169,8 +177,8 @@ const Album = (props) => {
 
   const v = album.get('view')
 
-  const text_history = album.get('history').map(ts => "Listened: " + moment(ts, 'X').fromNow()).toJS()
-  text_history.unshift("Added: " + moment(album.get('add_date'), 'X').fromNow())
+  const text_history = album.get('history').map(ts => ["Listen", moment(ts, 'X').fromNow()]).toJS()
+  text_history.unshift(["Add", moment(album.get('add_date'), 'X').fromNow()])
 
   const genres = album.get('genres').isEmpty() ? ["Not Classified"] : album.get('genres')
 
@@ -193,58 +201,59 @@ const Album = (props) => {
   }
 
   return (
-    <article className="media" sid={sid}>
-      <figure className="media-left">
-        <p className="image is-128x128 grow-art-small">
-          <img src={art} alt={sid}/>
-        </p>
-      </figure>
-      <div className="media-content album">
-        <div className="is-pulled-right">
-          <h4 className="subtitle is-5">{icon} {avg_score} (#{rank})</h4>
-        </div>
-        <div>
-          <h3 className="title is-3 album-title">{album.get('album')} <a href={album.get('url')} target="_blank"><i className="fab fa-spotify"></i></a></h3>
-          <h5 className="subtitle is-5 album-subtitle">{album.get('artist')} — {album.get('year')} ({duration(album.get('runtime'))})</h5>
-          <Genres genres={genres} />
-          <p>
-            Recommended: {album.get('recommended_score').toFixed(2)*100}
+    <article className="album" sid={sid}>
+      <div className="album-static">
+        <figure className="album-art">
+          <p className="image">
+            <img src={art} alt={sid}/>
           </p>
+        </figure>
+        <div className="album-content">
+          <div className="blur-container">
+            <img src={art} className="blur-image"/>
+          </div>
+          <div className="album-header">
+            <h1 className="title album-title">{album.get('album')}</h1>
+            <h6 className="subtitle is-6 album-subtitle">{album.get('artist')} — {album.get('year')} {icon}</h6>
+            <div className="album-desc">
+              <span>{duration(album.get('runtime'))}</span> <span>{avg_score} (#{rank})</span> <span><a href={album.get('url')} target="_blank">Listen</a></span>
+              <Genres genres={genres} />
+              <FontAwesomeIcon icon={faCompass} color="#5e5e5e"/> <span className="recommended">{Math.trunc(album.get('recommended_score').toFixed(2)*100)}</span>
+            </div>
+          </div>
         </div>
-        <div className="tabs">
-          <ul>
-            <li className={(v === "r" || v === "e") ? "is-active" : ""}><a onClick={() => props.setView(sid, "r")}>Overall</a></li>
-            <li className={v === "t" ? "is-active" : ""}><a onClick={() => props.setView(sid, "t")}>Tracks</a></li>
-            <li className={v === "h" ? "is-active" : ""}><a onClick={() => props.setView(sid, "h")}>History</a></li>
-            <li className={v === "o" ? "is-active" : ""}><a onClick={() => props.setView(sid, "o")}>Options</a></li>
-          </ul>
-        </div>
-
-        <ReviewEdit
-          post={(t) => { props.postReview(sid, t); props.setView(sid, "r")}}
-          rev={album.get('review')}
-          hidden={v === "e" ? false : true}/>
-        <Review
-          listen={() => { props.postListen(sid); props.setView(sid, "h") }}
-          edit={() => props.setView(sid, "e")}
-          review={album.get('review')}
-          hidden={v === "r" ? false : true}/>
-        <TrackList
-          edit={(tid, t) => props.postTrackReview(sid, tid, t)}
-          tracks={album.get('tracks')}
-          hidden={v === "t" ? false : true}/>
-        <History
-          history={text_history}
-          hidden={v === "h" ? false : true}/>
-        <Options
-          album={album}
-          popularity={album.get('popularity')}
-          categories={album.get('catg_inc') === undefined ? [] : album.get('catg_inc')}
-          inc={(cat) => props.incCatg(sid, cat)}
-          exc={(cat) => props.excCatg(sid, cat)}
-          del={() => props.deleteAlbum(sid)}
-          hidden={v === "o" ? false : true}/>
       </div>
+      <div className="album-tabs">
+        <div className={(v === "r" || v === "e") ? "album-tab album-tab-active" : "album-tab"} onClick={() => props.setView(sid, "r")}>OVERALL</div>
+        <div className={v === "t" ? "album-tab album-tab album-tab-active" : "album-tab"} onClick={() => props.setView(sid, "t")}>TRACKS</div>
+        <div className={v === "h" ? "album-tab album-tab-active" : "album-tab"} onClick={() => props.setView(sid, "h")}>HISTORY</div>
+        <div className={v === "o" ? "album-tab album-tab-active" : "album-tab"} onClick={() => props.setView(sid, "o")}>OPTIONS</div>
+      </div>
+
+      <ReviewEdit
+        post={(t) => { props.postReview(sid, t); props.setView(sid, "r")}}
+        rev={album.get('review')}
+        hidden={v === "e" ? false : true}/>
+      <Review
+        listen={() => { props.postListen(sid); props.setView(sid, "h") }}
+        edit={() => props.setView(sid, "e")}
+        review={album.get('review')}
+        hidden={v === "r" ? false : true}/>
+      <TrackList
+        edit={(tid, t) => props.postTrackReview(sid, tid, t)}
+        tracks={album.get('tracks')}
+        hidden={v === "t" ? false : true}/>
+      <History
+        history={text_history}
+        hidden={v === "h" ? false : true}/>
+      <Options
+        album={album}
+        popularity={album.get('popularity')}
+        categories={album.get('catg_inc') === undefined ? [] : album.get('catg_inc')}
+        inc={(cat) => props.incCatg(sid, cat)}
+        exc={(cat) => props.excCatg(sid, cat)}
+        del={() => props.deleteAlbum(sid)}
+        hidden={v === "o" ? false : true}/>
     </article>
   )
 }
