@@ -540,8 +540,11 @@ export function postAlbum(sid) {
     try {
       const json = await response.json()
 
+      // json = resolveAttributes(json)
+
       json.view = "r"
       json.runtime = json.tracks.reduce((a,b) => a + b[2], 0)
+      json.recommended_score = 0
       dispatch(clearResults()) // clears results
       dispatch(clearQuery()) // clears query
 
