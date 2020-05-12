@@ -14,11 +14,15 @@ export const SORTS = {
 }
 
 export const REQUEST_COMPARISON = 'REQUEST_COMPARISON'
-export const RECEIVE_COMPARISON = 'RECEIVE_COMPARISON'
-export const POST_COMPARISON_SUCCESS = 'POST_COMPARISON_SUCCESS'
+export const INCREASE_ITER = 'INCREASE_ITER'
 export const GET_COMPARISONS_SUCCESS = 'GET_COMPARISONS_SUCCESS'
 
-export const RESET_SCORES_COUNT = 'RESET_SCORES_COUNT'
+// export const RESET_SCORES_COUNT = 'RESET_SCORES_COUNT'
+// export const SET_COMPARISON_QUEUE = 'SET_COMPARISON_QUEUE'
+
+export const SHIFT_QUEUE = 'SHIFT_QUEUE'
+export const RESET_QUEUE = 'RESET_QUEUE'
+
 export const GET_SCORES_SUCCESS = 'GET_SCORES_SUCCESS'
 export const COLLATE_SCORES_SUCCESS = 'COLLATE_SCORES_SUCCESS'
 export const RANK_SCORES_SUCCESS = 'RANK_SCORES_SUCCESS'
@@ -64,9 +68,9 @@ export const QUESTIONS = [
 ]
 
 export const RECOMMENDED_WEIGHTS = {
-  add_date_score: 0.75,
-  listen_score: 1.0,
-  runtime_score: 0.75,
+  add_date_score: 0.333,
+  listen_score: 0.54,
+  runtime_score: 0.5,
   history_score: 1.0,
-  genre_score: 0.5
+  genre_score: 0.75,
 }

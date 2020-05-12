@@ -41,18 +41,6 @@ export const resetFilters = () => ({
 
 /////
 
-const receiveComparison = () => ({
-  type: consts.RECEIVE_COMPARISON,
-})
-
-const requestComparison = (sid1, sid2, question, category) => ({
-  type: consts.REQUEST_COMPARISON,
-  sid1,
-  sid2,
-  question,
-  category
-})
-
 function shuffle(array) {
   // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
   var currentIndex = array.length, temporaryValue, randomIndex;
@@ -70,46 +58,8 @@ function shuffle(array) {
   return array;
 }
 
-export function fetchComparison(albums, iter) {
-  return dispatch => {
-
-    let cix = Math.floor(Math.random() * consts.CATEGORIES.length)
-    let category = consts.CATEGORIES[cix]
-    let question = consts.QUESTIONS[cix]
-
-    albums = albums.filter(v =>
-      v.get('history').size >= consts.MIN_LISTENS && v.has('catg_inc') && v.get('catg_inc').includes(category)
-    )
-
-    const scoreKey = 'score_' + category
-    let k = albums.keySeq()
-    let [sid1, sid2] = shuffle(k.toJS()).slice(0,2)
-
-    if (iter % 3 !== 0) {
-      albums = OrderedMap(albums)
-      albums = albums.sort((a,b) => a.get(scoreKey) - b.get(scoreKey))
-
-      let k = albums.keySeq()
-
-      let z = []
-
-      for (let i = 1; i < albums.count(); i++) {
-        z.push([[k.get(i-1), k.get(i)], albums.getIn([k.get(i), scoreKey]) - albums.getIn([k.get(i-1), scoreKey])])
-      }
-
-      [sid1, sid2] = z.sort((a,b) => a[1] - b[1])[0][0]
-    }
-
-    console.log(iter, sid1, sid2, category, albums.getIn([sid2, scoreKey]) - albums.getIn([sid1, scoreKey]))
-
-    dispatch(requestComparison(sid1, sid2, question, category))
-
-    return dispatch(receiveComparison())
-  }
-}
-
-const postComparisonSuccess = () => ({
-  type: consts.POST_COMPARISON_SUCCESS,
+const increaseIter = () => ({
+  type: consts.INCREASE_ITER,
 })
 
 export function postComparison(sid1, sid2, category) {
@@ -131,7 +81,7 @@ export function postComparison(sid1, sid2, category) {
       return
     }
 
-    dispatch(postComparisonSuccess())
+    dispatch(increaseIter())
 
     return dispatch
   }
@@ -182,9 +132,8 @@ export const getScoresSuccess = (category, scores) => ({
   scores,
 })
 
-function getScores(category) {
+export function getScores(category) {
   return async dispatch => {
-
     const uri = '/scores/' + category
 
     const response = await fetch(uri)
@@ -203,36 +152,113 @@ function getScores(category) {
       json = {}
     }
 
-    dispatch(getScoresSuccess(category, json))
-
-    return dispatch
+    return dispatch(getScoresSuccess(category, json))
   }
 }
 
 export function loadScores() {
-  return async dispatch => {
+  return dispatch => {
 
-    let d = await dispatch(getScores(consts.CATEGORIES[0]))
-    d = await d(getScores(consts.CATEGORIES[1]))
-    d = await d(getScores(consts.CATEGORIES[2]))
-    d = await d(getScores(consts.CATEGORIES[3]))
-    d = await d(getScores(consts.CATEGORIES[4]))
-    d = await d(getScores(consts.CATEGORIES[5]))
-    d = await d(getScores(consts.CATEGORIES[6]))
-    d = await d(getScores(consts.CATEGORIES[7]))
-    d = await d(getScores(consts.CATEGORIES[8]))
-    d = await d(getScores(consts.CATEGORIES[9]))
-    d = await d(getScores(consts.CATEGORIES[10]))
-    d = await d(getScores(consts.CATEGORIES[11]))
+    Promise.all([
+      dispatch(getScores(consts.CATEGORIES[0])),
+      dispatch(getScores(consts.CATEGORIES[1])),
+      dispatch(getScores(consts.CATEGORIES[2])),
+      dispatch(getScores(consts.CATEGORIES[3])),
+      dispatch(getScores(consts.CATEGORIES[4])),
+      dispatch(getScores(consts.CATEGORIES[5])),
+      dispatch(getScores(consts.CATEGORIES[6])),
+      dispatch(getScores(consts.CATEGORIES[7])),
+      dispatch(getScores(consts.CATEGORIES[8])),
+      dispatch(getScores(consts.CATEGORIES[9])),
+      dispatch(getScores(consts.CATEGORIES[10])),
+      dispatch(getScores(consts.CATEGORIES[11])),
+    ]).then(() => {
+      dispatch(collateScoresSuccess())
+      dispatch(rankScoresSuccess())
+    })
 
-    dispatch(collateScoresSuccess())
-    dispatch(rankScoresSuccess())
   }
 }
 
-export const resetScoresCount = () => ({
-  type: consts.RESET_SCORES_COUNT
+const _requestComparison = () => ({
+  type: consts.REQUEST_COMPARISON,
 })
+
+export function requestComparison() {
+  return dispatch => {
+
+    return dispatch(_requestComparison())
+  }
+}
+
+const _shiftQueue = () => ({
+  type: consts.SHIFT_QUEUE,
+})
+
+export function shiftQueue(queue) {
+  return dispatch => {
+
+    dispatch(_shiftQueue())
+    dispatch(_requestComparison())
+
+    return queue.first()
+  }
+}
+
+export const _resetQueue = (queue) => ({
+  type: consts.RESET_QUEUE,
+  queue,
+})
+
+export function resetQueue(albums) {
+  return dispatch => {
+    let queue = []
+
+    for (let i = 0; i < 10 * 3; i++) {
+      let catgs = Array.from(consts.CATEGORIES)
+      if (queue.length > 0) {
+        catgs.splice(catgs.indexOf(queue[0]['category']), 1)
+      }
+      let ix = Math.floor(Math.random() * catgs.length)
+      let category = catgs[ix]
+      let cix = consts.CATEGORIES.indexOf(category)
+
+      albums = albums.filter(v =>
+        v.get('history').size >= consts.MIN_LISTENS && v.has('catg_inc') && v.get('catg_inc').includes(category)
+      )
+
+      const scoreKey = 'score_' + category
+      let k = albums.keySeq()
+      const N = k.count()
+      let [sid1, sid2] = shuffle(k.toJS()).slice(0,2)
+
+      if (i % 3 !== 0 && i < N) {
+        albums = OrderedMap(albums)
+        albums = albums.sort((a,b) => a.get(scoreKey) - b.get(scoreKey))
+
+        let k = albums.keySeq()
+
+        let z = []
+        for (let i = 1; i < albums.count(); i++) {
+          z.push([[k.get(i-1), k.get(i)], albums.getIn([k.get(i), scoreKey]) - albums.getIn([k.get(i-1), scoreKey])])
+        }
+
+        console.log(z.sort((a,b) => a[1] - b[1]));
+
+        [sid1, sid2] = z.sort((a,b) => a[1] - b[1])[(i-1) % z.length][0];
+      }
+
+      queue.unshift({
+        sid1: sid1,
+        sid2: sid2,
+        category: category,
+        question: consts.QUESTIONS[cix]
+      })
+    }
+
+    dispatch(_resetQueue(queue))
+  }
+}
 
 //////
 
@@ -366,7 +392,7 @@ function fetchAlbums() {
 
       switch(l) {
         case 0:
-          x['history_score'] = 0.85
+          x['history_score'] = 1.0
           break
         case 1:
           x['history_score'] = 0.75
@@ -375,7 +401,7 @@ function fetchAlbums() {
           x['history_score'] = 1.0
           break
         default:
-          x['history_score'] =  8.1 * Math.pow(l - 2.8, 1.9) * Math.pow(1.2*l - 2.36, -3.4) // Similar to an F-dist
+          x['history_score'] =  10.5 * Math.pow(l - 2.7, 1.9) * Math.pow(1.2*l - 2.16, -3.4) // Similar to an F-dist
           break
       }
       return x
