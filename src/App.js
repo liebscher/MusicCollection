@@ -5,15 +5,12 @@ import './App.css';
 import SearchBar from './components/SearchBar'
 import Filter from './components/Filter'
 import Album from './components/Album'
-import Comparison from './components/Comparison'
+import ComparisonQueue from './components/ComparisonQueue'
 import Stats from './components/Stats'
 
 import {  clearError,
           setSort,
-          fetchComparison,
-          getComparisons,
-          loadScores,
-          resetScoresCount } from './actions/collection'
+          loadScores } from './actions/collection'
 
 const Container = ({content}) => (
   <div className="section">
@@ -46,69 +43,25 @@ const Albums = ({albums}) => (
   </div>
 )
 
-const albumStyle = {margin: "auto", "marginTop": "1em"}
-const questStyle = {margin: "auto", "marginTop": "3em"}
-const LoadingComparison = () => (
-  <div className="columns">
-    <div className="column is-2 is-offset-2 has-text-centered">
-      <div className="loading-image"></div>
-      <p className="is-size-5"><span className="loader" style={albumStyle}></span></p>
-    </div>
-    <div className="column is-4 has-text-centered">
-      <h5 className="is-size-5"><span className="loader is-size-3" style={questStyle}></span></h5>
-    </div>
-    <div className="column is-2 has-text-centered">
-      <div className="loading-image"></div>
-      <p className="is-size-5"><span className="loader" style={albumStyle}></span></p>
-    </div>
-  </div>
-)
-
 class App extends Component {
 
   componentDidMount() {
     this.props.dispatch(setSort('SORT_ADDN'))
-  }
-
-  shouldFetchComparison(albums, comparison) {
-    if (!albums.get('isLoaded')) {
-      return false
-    } else if (!comparison.get('isLoaded')) {
-      return true
-    } else if (comparison.get('isFetching')) {
-      return false
-    } else {
-      return comparison.get('isInvalid')
-    }
-  }
-
-  shouldFetchScores(comparison) {
-    return comparison.get('iter') === comparison.get('maxIters')
+    this.props.dispatch(loadScores())
   }
 
   render() {
-    const { albums, error, comparison } = this.props;
-
-    if (this.shouldFetchComparison(albums, comparison)) {
-      if (this.shouldFetchScores(comparison)) {
-        this.props.dispatch(loadScores())
-        this.props.dispatch(resetScoresCount())
-      }
-      if (albums.get('isScored')) {
-        this.props.dispatch(fetchComparison(albums.get('bySID'), comparison.get('iter')))
-        this.props.dispatch(getComparisons())
-      }
-    }
+    const { filteredSIDs, error } = this.props;
 
     return (
       <div>
         <Container content={<Header error={error} clear={() => this.props.dispatch(clearError())}/>} />
 
-        <Container content={comparison.get('isLoaded') ? <Comparison /> : <LoadingComparison />} />
+        <Container content={<ComparisonQueue />} />
 
-        <Container content={<Filter albumsN={albums.get('filteredSIDs').size}/>} />
+        <Container content={<Filter albumsN={filteredSIDs.count()}/>} />
 
-        <Container content={<Albums albums={albums.get('filteredSIDs')} />} />
+        <Container content={<Albums albums={filteredSIDs} />} />
 
         <Container content={<Stats />} />
 
@@ -119,9 +72,8 @@ class App extends Component {
 
 const mapStateToProps = state => {
   return {
-    albums: state.collection.get('albums'),
+    filteredSIDs: state.collection.getIn(['albums', 'filteredSIDs']),
     error: state.collection.get('error'),
-    comparison: state.collection.get('comparison'),
   }
 };
 

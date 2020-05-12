@@ -3,11 +3,9 @@ import { List, Map, fromJS } from 'immutable';
 
 const initialState = Map({
   albums: Map({
-    isFetching: false,
-    isInvalid: false,
+    isFetching: true,
     isLoaded: false,
     isScored: false,
-    lastUpdated: 0,
     bySID: Map(),
     allSIDs: List(),
     filteredSIDs: List()
@@ -16,16 +14,12 @@ const initialState = Map({
   sort: consts.SORTS.ADD,
   sort_asc: true,
   filter: '',
-  comparison: Map({
-    isLoaded: false,
-    isFetching: false,
-    isInvalid: false,
-    category: '',
-    question: '',
-    sid1: '',
-    sid2: '',
+  comparisonQueue: Map({
+    isLoading: true,
+    isFetching: true,
     maxIters: 6,
-    iter: 6,
+    iter: 0,
+    queue: List(),
   }),
   comparisons: Map()
 })
@@ -74,6 +68,9 @@ function filterAlbums(albums, query) {
 
 function normalizeAlbums(data) {
   return fromJS({
+    isFetching: false,
+    isLoaded: true,
+    isScored: false,
     bySID: data.reduce((obj, cv) => ({...obj, [cv.sid]: cv }), {}),
     allSIDs: data.map(obj => obj.sid),
     filteredSIDs: data.map(obj => obj.sid)
@@ -107,37 +104,32 @@ const collection = (state = initialState, action) => {
 
     case consts.REQUEST_COMPARISON:
       return state
-        .setIn(['comparison', 'sid1'], action.sid1)
-        .setIn(['comparison', 'sid2'], action.sid2)
-        .setIn(['comparison', 'question'], action.question)
-        .setIn(['comparison', 'category'], action.category)
-        .setIn(['comparison', 'isLoaded'], false)
-        .setIn(['comparison', 'isFetching'], true)
-        .setIn(['comparison', 'isInvalid'], false)
+        .setIn(['comparisonQueue', 'isFetching'], true)
 
-    case consts.RECEIVE_COMPARISON:
+    case consts.INCREASE_ITER:
       return state
-        .setIn(['comparison', 'isLoaded'], true)
-        .setIn(['comparison', 'isFetching'], false)
-        .setIn(['comparison', 'isInvalid'], false)
-
-
-    case consts.POST_COMPARISON_SUCCESS:
-      return state
-        .setIn(['comparison', 'sid1'], '')
-        .setIn(['comparison', 'sid2'], '')
-        .setIn(['comparison', 'question'], '')
-        .setIn(['comparison', 'category'], '')
-        .setIn(['comparison', 'isLoaded'], false)
-        .setIn(['comparison', 'isFetching'], false)
-        .setIn(['comparison', 'isInvalid'], false)
-        .setIn(['comparison', 'iter'], state.getIn(['comparison', 'iter'])+1)
+        .setIn(
+          ['comparisonQueue', 'iter'],
+          state.getIn(['comparisonQueue', 'iter']) + 1
+        )
 
     case consts.GET_COMPARISONS_SUCCESS:
-      return state.set('comparisons', fromJS(action.comparisons))
+      return state
+        .set('comparisons', fromJS(action.comparisons))
 
-    case consts.RESET_SCORES_COUNT:
-      return state.setIn(['comparison', 'iter'], 0)
+    case consts.SHIFT_QUEUE:
+      return state
+      .setIn(
+        ['comparisonQueue', 'queue'],
+        state.getIn(['comparisonQueue', 'queue']).shift()
+      )
+      .setIn(['comparisonQueue', 'isFetching'], false)
+
+    case consts.RESET_QUEUE:
+      return state
+        .setIn(['comparisonQueue', 'isLoading'], false)
+        .setIn(['comparisonQueue', 'isFetching'], false)
+        .setIn(['comparisonQueue', 'queue'], fromJS(action.queue))
 
     case consts.GET_SCORES_SUCCESS:
       const scores = action.scores
@@ -160,13 +152,14 @@ const collection = (state = initialState, action) => {
 
     case consts.COLLATE_SCORES_SUCCESS:
       return state
+        .setIn(['albums', 'isScored'], true)
         .setIn(['albums', 'bySID'],
           state.getIn(['albums', 'bySID'])
           .reduce((R, V, K) =>
             R.set(K, V.set("avg_score",
               consts.CATEGORIES.reduce((S, W) => {
                 let y = 'score_' + W
-                let e = V.get(y) ? V.get(y) : 0
+                let e = V.has(y) ? V.get(y) : 0
                 return S + e
               }, 0) / consts.CATEGORIES.length
             )
@@ -174,7 +167,6 @@ const collection = (state = initialState, action) => {
           state.getIn(['albums', 'bySID'])
         )
       )
-      .setIn(['albums', 'isScored'], true)
 
     case consts.RANK_SCORES_SUCCESS:
       const sorted = state.getIn(['albums', 'bySID']).map((v, k) => v.get('avg_score')).sort().reverse().keySeq()
@@ -201,21 +193,13 @@ const collection = (state = initialState, action) => {
         filterAlbums(state.get('albums'), state.get('filter'))
       )
 
-    case consts.INVALIDATE_COLLECTION:
-      return state
-        .setIn(['albums', 'isInvalid'], true)
-
     case consts.REQUEST_COLLECTION:
       return state
-        .setIn(['albums', 'isInvalid'], false)
         .setIn(['albums', 'isFetching'], true)
 
     case consts.RECEIVE_COLLECTION:
       return state
         .set('albums', normalizeAlbums(action.collection))
-        .setIn(['albums', 'isLoaded'], true)
-        .setIn(['albums', 'isInvalid'], false)
-        .setIn(['albums', 'isFetching'], false)
 
     case consts.RESET_FILTERS:
       return state.set('filter', '').setIn(

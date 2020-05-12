@@ -96,6 +96,10 @@ input.search:focus {
   font-weight: 300;
 }
 
+.comparisons .is-4 {
+  margin: 0 2em;
+}
+
 .comp-art {
   height: 256px;
   width: 256px;
