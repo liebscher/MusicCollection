@@ -4,6 +4,7 @@ app = Flask(__name__,
 	static_folder='build')
 
 from os.path import isfile
+import config
 
 import urllib.request as urllib
 
@@ -16,12 +17,12 @@ from datetime import datetime
 
 from bson.json_util import dumps, loads
 from pymongo import MongoClient
-client = MongoClient('localhost', 27018)
+client = MongoClient('localhost', config.MONGODB_PORT)
 db = client['musicCollectionDB']
 collection = db['collection']
 comparisons = db['comparisons']
 
-client_credentials_manager = SpotifyClientCredentials('1e397fe8f48841b29574a0412050c29f', 'b03d95f886e042ceb82bbe398e51aa83')
+client_credentials_manager = SpotifyClientCredentials(config.SPOTIFY_CLIENT, config.SPOTIFY_SECRET)
 sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 
 from choix import opt_pairwise

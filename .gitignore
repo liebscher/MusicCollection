@@ -11,6 +11,7 @@
 # production
 /build
 /public
+config.py
 
 # misc
 .DS_Store
