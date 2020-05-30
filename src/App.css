@@ -430,7 +430,8 @@ input.search:focus {
   width: 90px;
   float: left;
 }
-.progress {
+
+.popbar .progress {
   width: 20%;
   float: left;
 }
@@ -458,4 +459,14 @@ input.search:focus {
 .catg-on {
   background-color: #fff;
   color: inherit;
+}
+
+/* Stats */
+
+.varianceComp .progress {
+  width: 10%;
+  float: left;
+  margin-right: 1em;
+  margin-top: 4px;
+  border-radius: 6px;
 }

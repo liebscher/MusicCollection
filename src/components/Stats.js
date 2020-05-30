@@ -3,13 +3,13 @@ import { connect } from 'react-redux'
 
 import * as consts from '../constants/collection'
 
-import { makeWidthFlexible, XYPlot, XAxis, VerticalBarSeries, HorizontalBarSeries } from 'react-vis'
+import { makeWidthFlexible, XYPlot, XAxis, VerticalBarSeries } from 'react-vis'
 
 const FlexibleXYPlot = makeWidthFlexible(XYPlot)
 
 const VarianceComponent = ({album, artist, year, variance}) => (
-  <p>
-    {album} – {artist} ({year}): {variance.toFixed(2)}
+  <p className="varianceComp">
+    <progress className="progress" value={(100 * variance / consts.MAXIMUM_CONTROVERSY).toFixed(2)} max="100">{(variance / consts.MAXIMUM_CONTROVERSY).toFixed(2)}</progress> {album} – {artist} ({year})
   </p>
 )
 

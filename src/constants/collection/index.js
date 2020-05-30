@@ -74,3 +74,5 @@ export const RECOMMENDED_WEIGHTS = {
   history_score: 1.0,
   genre_score: 0.75,
 }
+
+export const MAXIMUM_CONTROVERSY = 0.5222
